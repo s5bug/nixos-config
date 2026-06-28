@@ -26,6 +26,9 @@
   nixpkgs.config.allowUnfree = true;
   home-manager.useGlobalPkgs = true;
 
+  # Allow home config to use inputs
+  home-manager.extraSpecialArgs = {inherit inputs;};
+
   # Turn on middle click scroll for Chrome and Discord
   nixpkgs.overlays = [
     (final: prev: {
@@ -142,7 +145,9 @@
   services.xserver.videoDrivers = ["amdgpu"];
 
   # Force high-power mode
-  boot.kernelParams = ["amdgpu.aspm=0"];
+  boot.kernelParams = [
+    "amdgpu.aspm=0"
+  ];
   services.udev.extraRules = ''
     SUBSYSTEM=="drm", KERNEL=="card*", DRIVERS=="amdgpu", ATTR{device/power_dpm_force_performance_level}="high"
   '';
