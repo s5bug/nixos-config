@@ -36,6 +36,7 @@ in {
     jdk-26
     sbt-new-safe
     rustup
+    stdenv.cc
   ];
 
   programs.fish.enable = true;
@@ -88,6 +89,15 @@ in {
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
+  };
+
+  # Explicitly specify cursor
+  home.pointerCursor = {
+    gtk.enable = true;
+    x11.enable = true;
+    package = pkgs.pop-icon-theme;
+    name = "Pop";
+    size = 16;
   };
 
   home.stateVersion = "26.05";
