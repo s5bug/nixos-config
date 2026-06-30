@@ -68,7 +68,10 @@ in {
     ];
   };
 
-  services.hazkey.enable = true;
+  services.hazkey = {
+    enable = true;
+    zenzai.package = inputs.nix-hazkey.packages."x86_64-linux".zenzai_v3_2-small;
+  };
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";

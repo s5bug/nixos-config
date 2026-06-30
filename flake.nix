@@ -33,11 +33,17 @@
     adios-flake.lib.mkFlake {
       inherit inputs self;
       systems = ["x86_64-linux"];
-      perSystem = {pkgs, ...}: {
+      perSystem = {
+        pkgs,
+        system,
+        ...
+      }: {
         formatter = pkgs.alejandra;
 
         packages.cosmic-ext-applet-clipboard-manager-pkg = pkgs.callPackage ./pkgs/cosmic-ext-applet-clipboard-manager-pkg.nix {};
-        packages.cosmic-ext-applet-clipboard-manager = pkgs.callPackage ./pkgs/cosmic-ext-applet-clipboard-manager.nix {};
+        packages.cosmic-ext-applet-clipboard-manager = pkgs.callPackage ./pkgs/cosmic-ext-applet-clipboard-manager.nix {
+          inherit (self.packages.${system}) cosmic-ext-applet-clipboard-manager-pkg;
+        };
         packages.sbt = pkgs.callPackage ./pkgs/sbt.nix {};
 
         packages.update = pkgs.writeShellScriptBin "update" ''
@@ -54,13 +60,16 @@
       flake = {
         nixosConfigurations.hydrogen = nixpkgs.lib.nixosSystem {
           specialArgs = {inherit inputs;};
-          modules = [./configuration.nix ({config, ...}: {
-            nixpkgs.overlays = [
-              (final: prev: {
-                inherit (self.packages.${config.nixpkgs.hostPlatform.system}) cosmic-ext-applet-clipboard-manager sbt;
-              })
-            ];
-          })];
+          modules = [
+            ./configuration.nix
+            ({config, ...}: {
+              nixpkgs.overlays = [
+                (final: prev: {
+                  inherit (self.packages.${config.nixpkgs.hostPlatform.system}) cosmic-ext-applet-clipboard-manager sbt;
+                })
+              ];
+            })
+          ];
         };
       };
     };
