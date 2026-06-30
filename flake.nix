@@ -35,11 +35,32 @@
       systems = ["x86_64-linux"];
       perSystem = {pkgs, ...}: {
         formatter = pkgs.alejandra;
+
+        packages.cosmic-ext-applet-clipboard-manager-pkg = pkgs.callPackage ./pkgs/cosmic-ext-applet-clipboard-manager-pkg.nix {};
+        packages.cosmic-ext-applet-clipboard-manager = pkgs.callPackage ./pkgs/cosmic-ext-applet-clipboard-manager.nix {};
+        packages.sbt = pkgs.callPackage ./pkgs/sbt.nix {};
+
+        packages.update = pkgs.writeShellScriptBin "update" ''
+          if [ -e 'result' ]; then
+            echo "\`result\` file already exists and will be clobbered by nix-update bug" >&2
+            echo "not performing nix-update unless a previous build's result was importent" >&2
+          else
+            "${pkgs.nix-update}"/bin/nix-update cosmic-ext-applet-clipboard-manager-pkg --flake --use-update-script
+            "${pkgs.nix-update}"/bin/nix-update sbt --flake --use-update-script
+            rm result
+          fi
+        '';
       };
       flake = {
         nixosConfigurations.hydrogen = nixpkgs.lib.nixosSystem {
           specialArgs = {inherit inputs;};
-          modules = [./configuration.nix];
+          modules = [./configuration.nix ({config, ...}: {
+            nixpkgs.overlays = [
+              (final: prev: {
+                inherit (self.packages.${config.nixpkgs.hostPlatform.system}) cosmic-ext-applet-clipboard-manager sbt;
+              })
+            ];
+          })];
         };
       };
     };

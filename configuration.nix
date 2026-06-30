@@ -178,6 +178,7 @@
 
   # Logitech G600
   services.ratbagd.enable = true;
+  systemd.services.ratbagd.serviceConfig.Restart = lib.mkForce "always";
 
   # Use Doas instead of Sudo
   security.doas.enable = true;
@@ -235,6 +236,7 @@
     clinfo
 
     cosmic-ext-applet-sysinfo
+    cosmic-ext-applet-clipboard-manager
     cosmic-monitor
 
     piper
