@@ -1,12 +1,12 @@
 {
-  sbt,
+  pkgs,
   javaPackages,
   fetchurl,
   nix-update-script,
 }: let
   jdk-26 = javaPackages.compiler.temurin-bin.jdk-26;
 in
-  (sbt.overrideAttrs (finalAttrs: prevAttrs: {
+  (pkgs.sbt.overrideAttrs (finalAttrs: prevAttrs: {
     version = "2.0.1";
 
     src = fetchurl {

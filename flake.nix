@@ -40,22 +40,37 @@
       }: {
         formatter = pkgs.alejandra;
 
-        packages.cosmic-ext-applet-clipboard-manager-pkg = pkgs.callPackage ./pkgs/cosmic-ext-applet-clipboard-manager-pkg.nix {};
-        packages.cosmic-ext-applet-clipboard-manager = pkgs.callPackage ./pkgs/cosmic-ext-applet-clipboard-manager.nix {
-          inherit (self.packages.${system}) cosmic-ext-applet-clipboard-manager-pkg;
-        };
-        packages.sbt = pkgs.callPackage ./pkgs/sbt.nix {};
+        packages = let
+          packageFiles = builtins.readDir ./pkgs;
+          packageNames = map (pkgs.lib.removeSuffix ".nix") (builtins.attrNames packageFiles);
 
-        packages.update = pkgs.writeShellScriptBin "update" ''
-          if [ -e 'result' ]; then
-            echo "\`result\` file already exists and will be clobbered by nix-update bug" >&2
-            echo "not performing nix-update unless a previous build's result was importent" >&2
-          else
-            "${pkgs.nix-update}"/bin/nix-update cosmic-ext-applet-clipboard-manager-pkg --flake --use-update-script
-            "${pkgs.nix-update}"/bin/nix-update sbt --flake --use-update-script
-            rm result
-          fi
-        '';
+          # every package name ends up being `name = callPackage (...) {}`
+          # we can just make the packages a recursive scope because nix will handle the laziness for us
+          callPackage = pkgs.newScope resolvedPackages;
+          resolvedPackages = pkgs.lib.genAttrs packageNames (name:
+            callPackage (./pkgs + "/${name}.nix") {}
+          );
+
+          # we need X-pkg to be updated before X
+          # so X < Y is lexicographic/alphabetical UNLESS X = Y-pkg, then Y-pkg comes first
+          packageNamesByUpdateOrder = builtins.sort (a: b:
+            if b == "${a}-pkg" then false # false ⇒ b comes before a
+            else if a == "${b}-pkg" then true # true ⇒ a comes before b
+            else a < b
+          ) packageNames;
+
+          updateScript = pkgs.writeShellScriptBin "update" ''
+            if [ -e 'result' ]; then
+              echo "\`result\` file already exists and will be clobbered by nix-update bug" >&2
+              echo "not performing nix-update in case a previous build's result was important" >&2
+            else
+              ${pkgs.lib.concatMapStringsSep "\n      " (name:
+                ''"${pkgs.nix-update}/bin/nix-update" ${name} --flake --use-update-script''
+              ) packageNamesByUpdateOrder}
+              rm result
+            fi
+          '';
+        in resolvedPackages // { update = updateScript; };
       };
       flake = {
         nixosConfigurations.hydrogen = nixpkgs.lib.nixosSystem {
