@@ -86,5 +86,14 @@ in {
     size = 16;
   };
 
+  # include compose files from dotXCompose project
+  home.file.".XCompose".text = ''
+    include "${pkgs.dotxcompose}/dotXCompose"
+    include "${pkgs.dotxcompose}/emoji.compose"
+    include "${pkgs.dotxcompose}/modletters.compose"
+    include "${pkgs.dotxcompose}/maths.compose"
+    include "${pkgs.dotxcompose}/parens.compose"
+  '';
+
   home.stateVersion = "26.05";
 }

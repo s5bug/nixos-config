@@ -79,9 +79,14 @@
             ./configuration.nix
             ({config, ...}: {
               nixpkgs.overlays = [
-                (final: prev: {
-                  inherit (self.packages.${config.nixpkgs.hostPlatform.system}) cosmic-ext-applet-clipboard-manager sbt;
-                })
+                (final: prev:
+                  prev.lib.filterAttrs (name: _:
+                    # we want to make our custom packages available in anything assuming nixpkgs
+                    # we exclude "update" because that's the update script
+                    # we also exclude all "-pkg" fake packages as those are just definitions
+                    name != "update" && !(prev.lib.hasSuffix "-pkg" name)
+                  ) self.packages.${config.nixpkgs.hostPlatform.system}
+                )
               ];
             })
           ];
