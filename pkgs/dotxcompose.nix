@@ -2,7 +2,7 @@
   stdenvNoCC,
   fetchFromGitHub,
   perl,
-  nix-update-script
+  nix-update-script,
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "dotxcompose";
@@ -15,7 +15,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     hash = "sha256-xFprIrOgvniglZpjCOYPwo693G8fpFQ2eHvPeFeOocM=";
   };
 
-  nativeBuildInputs = [ perl ];
+  nativeBuildInputs = [perl];
 
   postPatch = ''
     patchShebangs .

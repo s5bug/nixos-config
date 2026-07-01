@@ -47,30 +47,38 @@
           # every package name ends up being `name = callPackage (...) {}`
           # we can just make the packages a recursive scope because nix will handle the laziness for us
           callPackage = pkgs.newScope resolvedPackages;
-          resolvedPackages = pkgs.lib.genAttrs packageNames (name:
-            callPackage (./pkgs + "/${name}.nix") {}
+          resolvedPackages = pkgs.lib.genAttrs packageNames (
+            name:
+              callPackage (./pkgs + "/${name}.nix") {}
           );
 
           # we need X-pkg to be updated before X
           # so X < Y is lexicographic/alphabetical UNLESS X = Y-pkg, then Y-pkg comes first
-          packageNamesByUpdateOrder = builtins.sort (a: b:
-            if b == "${a}-pkg" then false # false ⇒ b comes before a
-            else if a == "${b}-pkg" then true # true ⇒ a comes before b
-            else a < b
-          ) packageNames;
+          packageNamesByUpdateOrder =
+            builtins.sort (
+              a: b:
+                if b == "${a}-pkg"
+                then false # false ⇒ b comes before a
+                else if a == "${b}-pkg"
+                then true # true ⇒ a comes before b
+                else a < b
+            )
+            packageNames;
 
           updateScript = pkgs.writeShellScriptBin "update" ''
             if [ -e 'result' ]; then
               echo "\`result\` file already exists and will be clobbered by nix-update bug" >&2
               echo "not performing nix-update in case a previous build's result was important" >&2
             else
-              ${pkgs.lib.concatMapStringsSep "\n      " (name:
-                ''"${pkgs.nix-update}/bin/nix-update" ${name} --flake --use-update-script''
-              ) packageNamesByUpdateOrder}
+              ${pkgs.lib.concatMapStringsSep "\n      " (
+                name: ''"${pkgs.nix-update}/bin/nix-update" ${name} --flake --use-update-script''
+              )
+              packageNamesByUpdateOrder}
               rm result
             fi
           '';
-        in resolvedPackages // { update = updateScript; };
+        in
+          resolvedPackages // {update = updateScript;};
       };
       flake = {
         nixosConfigurations.hydrogen = nixpkgs.lib.nixosSystem {
@@ -79,13 +87,16 @@
             ./configuration.nix
             ({config, ...}: {
               nixpkgs.overlays = [
-                (final: prev:
-                  prev.lib.filterAttrs (name: _:
-                    # we want to make our custom packages available in anything assuming nixpkgs
-                    # we exclude "update" because that's the update script
-                    # we also exclude all "-pkg" fake packages as those are just definitions
-                    name != "update" && !(prev.lib.hasSuffix "-pkg" name)
-                  ) self.packages.${config.nixpkgs.hostPlatform.system}
+                (
+                  final: prev:
+                    prev.lib.filterAttrs (
+                      name: _:
+                      # we want to make our custom packages available in anything assuming nixpkgs
+                      # we exclude "update" because that's the update script
+                      # we also exclude all "-pkg" fake packages as those are just definitions
+                        name != "update" && !(prev.lib.hasSuffix "-pkg" name)
+                    )
+                    self.packages.${config.nixpkgs.hostPlatform.system}
                 )
               ];
             })

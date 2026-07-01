@@ -4,9 +4,8 @@
   rustPlatform,
   nix-update-script,
   cosmic-ext-applet-clipboard-manager-pkg,
-}:
-
-let cosmic-ext-applet-clipboard = callPackage cosmic-ext-applet-clipboard-manager-pkg {};
+}: let
+  cosmic-ext-applet-clipboard = callPackage cosmic-ext-applet-clipboard-manager-pkg {};
 in (cosmic-ext-applet-clipboard.overrideAttrs (finalAttrs: prevAttrs: {
   version = "0.1.0-unstable-2026-03-24";
 

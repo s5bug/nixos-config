@@ -32,26 +32,6 @@
   # Turn on middle click scroll for Chrome and Discord
   nixpkgs.overlays = [
     (final: prev: {
-      discord-canary = prev.discord-canary.overrideAttrs (prevAttrs: {
-        postFixup =
-          (prevAttrs.postFixup or "")
-          + ''
-            wrapProgram $out/bin/DiscordCanary \
-              --add-flags "--enable-blink-features=MiddleClickAutoscroll"
-          '';
-      });
-
-      google-chrome = prev.google-chrome.overrideAttrs (prevAttrs: {
-        postFixup =
-          (prevAttrs.postFixup or "")
-          + ''
-            for branch in "" "-stable"; do \
-              wrapProgram "$out/bin/google-chrome$branch" \
-                --add-flags "--enable-blink-features=MiddleClickAutoscroll"; \
-            done
-          '';
-      });
-
       # Enable GameMode detection (NixOS/nixpkgs#317406)
       xivlauncher = prev.xivlauncher.overrideAttrs (prevAttrs: {
         postFixup = let
@@ -186,6 +166,11 @@
   security.doas.extraRules = [
     # wheel is enabled by default
     {
+      groups = ["wheel"];
+      keepEnv = false;
+      persist = false;
+    }
+    {
       users = ["aly"];
       keepEnv = true;
       # Allow multiple doas in a time window
@@ -194,6 +179,7 @@
   ];
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.mutableUsers = false;
   users.users.aly = {
     isNormalUser = true;
     extraGroups = [
@@ -230,7 +216,9 @@
   environment.systemPackages = with pkgs; [
     nano
     curl
-    google-chrome
+    (google-chrome.override {
+      commandLineArgs = "--enable-blink-features=MiddleClickAutoscroll";
+    })
 
     vulkan-tools
     clinfo
