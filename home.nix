@@ -20,6 +20,9 @@ in {
     sbt
     rustup
     stdenv.cc
+
+    gimp-with-plugins
+    inkscape-with-extensions
   ];
 
   programs.fish.enable = true;
