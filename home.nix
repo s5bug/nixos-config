@@ -100,7 +100,7 @@ in {
 
   # shortcut for where the nix config is
   home.sessionVariables = {
-    NC = toString ./.;
+    NC = "/home/aly/Documents/nixos-config";
   };
 
   home.stateVersion = "26.05";

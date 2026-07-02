@@ -1,6 +1,7 @@
 {
   pkgs,
   fetchFromGitHub,
+  rustPlatform,
   nix-update-script,
 }:
 pkgs.biome.overrideAttrs (finalAttrs: prevAttrs: {
@@ -11,6 +12,11 @@ pkgs.biome.overrideAttrs (finalAttrs: prevAttrs: {
     repo = "biome";
     rev = "@biomejs/biome@${finalAttrs.version}";
     hash = "sha256-8Bhmd5VmhTLRiPHVb8OspD8djxSq+tAF1pjcuItYlHw=";
+  };
+
+  cargoDeps = rustPlatform.fetchCargoVendor {
+    inherit (finalAttrs) pname version src;
+    hash = "sha256-6W3OU1iBdw27oHhWUfScjyvugIXc7/JzX04EBgEnvkY=";
   };
 
   passthru =

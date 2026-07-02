@@ -17,7 +17,7 @@ in (cosmic-ext-applet-clipboard.overrideAttrs (finalAttrs: prevAttrs: {
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
-    src = finalAttrs.src;
+    inherit (finalAttrs) pname version src;
     hash = "sha256-+yqFV8HdPjkVny+6FKkZFEQAq1rwe7JXmoTJ7zge8bg=";
   };
 

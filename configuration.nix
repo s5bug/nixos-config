@@ -26,6 +26,18 @@
   nixpkgs.config.allowUnfree = true;
   home-manager.useGlobalPkgs = true;
 
+  # Make sure all packages under pkgs/ are built as part of a rebuild
+  # TODO this code is duplicate with some in flake.nix
+  system.extraDependencies = let
+    customOverlays =
+      lib.filterAttrs (
+        name: _:
+          name != "update" && !(lib.hasSuffix "-pkg" name)
+      )
+      inputs.self.packages.${pkgs.system};
+  in
+    lib.attrValues customOverlays;
+
   # Allow home config to use inputs
   home-manager.extraSpecialArgs = {inherit inputs;};
 
