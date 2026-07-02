@@ -98,5 +98,10 @@ in {
     include "${pkgs.dotxcompose}/parens.compose"
   '';
 
+  # shortcut for where the nix config is
+  home.sessionVariables = {
+    NC = toString ./.;
+  };
+
   home.stateVersion = "26.05";
 }
