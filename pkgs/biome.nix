@@ -19,6 +19,8 @@ pkgs.biome.overrideAttrs (finalAttrs: prevAttrs: {
       updateScript = nix-update-script {
         extraArgs = [
           "--flake"
+          "--version-regex"
+          "@biomejs/biome@(.*)"
         ];
       };
     };
