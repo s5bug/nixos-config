@@ -12,7 +12,10 @@ in {
     xivlauncher
     prismlauncher
     ghostty
+
     jetbrains-toolbox
+    # TODO figure out a way to declaratively set idea.filewatcher.executable.path
+    fsnotifier
 
     pnpm
     nodejs_latest
