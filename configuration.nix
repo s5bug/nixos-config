@@ -34,7 +34,7 @@
         name: _:
           name != "update" && !(lib.hasSuffix "-pkg" name)
       )
-      inputs.self.packages.${pkgs.system};
+      inputs.self.packages.${pkgs.stdenv.hostPlatform.system};
   in
     lib.attrValues customOverlays;
 

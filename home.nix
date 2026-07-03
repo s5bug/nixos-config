@@ -98,9 +98,12 @@ in {
     include "${pkgs.dotxcompose}/parens.compose"
   '';
 
-  # shortcut for where the nix config is
   home.sessionVariables = {
+    # shortcut for where the nix config is
     NC = "/home/aly/Documents/nixos-config";
+
+    # fix for `pnpm biome`
+    BIOME_BINARY = "${pkgs.biome}/bin/biome";
   };
 
   home.stateVersion = "26.05";
