@@ -53,17 +53,22 @@
           );
 
           # we need X-pkg to be updated before X
-          # so X < Y is lexicographic/alphabetical UNLESS X = Y-pkg, then Y-pkg comes first
-          packageNamesByUpdateOrder =
-            builtins.sort (
-              a: b:
-                if b == "${a}-pkg"
-                then false # false ⇒ b comes before a
-                else if a == "${b}-pkg"
-                then true # true ⇒ a comes before b
-                else a < b
-            )
-            packageNames;
+          packageNamesByUpdateOrder = let
+            # essentially we sort on (baseName, isNormal)
+            # this means packages are first sorted by their baseName (without -pkg)
+            # then the -pkg packages are sorted first
+            # the character '!' comes before the character '#'
+            # so -pkg (which are not normal, and we say false < true) append '!' to the baseName
+            # otherwise, append '#'
+            #
+            # the simpler way to do this would be to just partition the packageNames list
+            # but I think this is prettier :)
+            toProduct = name:
+              if pkgs.lib.hasSuffix "-pkg" name
+              then pkgs.lib.removeSuffix "-pkg" name + "!"
+              else name + "#";
+          in
+            builtins.sort (a: b: toProduct a < toProduct b) packageNames;
 
           updateScript = pkgs.writeShellScriptBin "update" ''
             if [ -e 'result' ]; then
