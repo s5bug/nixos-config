@@ -5,18 +5,18 @@
   nix-update-script,
 }:
 pkgs.biome.overrideAttrs (finalAttrs: prevAttrs: {
-  version = "2.5.2";
+  version = "2.5.3";
 
   src = fetchFromGitHub {
     owner = "biomejs";
     repo = "biome";
     rev = "@biomejs/biome@${finalAttrs.version}";
-    hash = "sha256-8Bhmd5VmhTLRiPHVb8OspD8djxSq+tAF1pjcuItYlHw=";
+    hash = "sha256-ctN3CmzLXw350U6tFXwGHCySZul09C30VMPDkM38LdU=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-6W3OU1iBdw27oHhWUfScjyvugIXc7/JzX04EBgEnvkY=";
+    hash = "sha256-znFmtMwdvLEBpq5TjRnm9IURFxIlexYQ16Sj6hlcCXA=";
   };
 
   passthru =
