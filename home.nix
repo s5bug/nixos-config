@@ -107,6 +107,9 @@ in {
 
     # fix for `pnpm biome`
     BIOME_BINARY = "${pkgs.biome}/bin/biome";
+
+    # fix for `pnpm astro dev`
+    MINIFLARE_WORKERD_PATH = "${pkgs.wrangler}/bin/workerd";
   };
 
   home.stateVersion = "26.05";
