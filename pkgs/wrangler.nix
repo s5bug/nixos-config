@@ -15,7 +15,8 @@ pkgs.wrangler.overrideAttrs (finalAttrs: prevAttrs: {
   };
 
   pnpmDeps = fetchPnpmDeps {
-    inherit (finalAttrs)
+    inherit
+      (finalAttrs)
       pname
       version
       src

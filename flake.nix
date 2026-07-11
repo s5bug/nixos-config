@@ -52,34 +52,33 @@
               callPackage (./pkgs + "/${name}.nix") {}
           );
 
-          # we need X-pkg to be updated before X
-          packageNamesByUpdateOrder = let
-            # essentially we sort on (baseName, isNormal)
-            # this means packages are first sorted by their baseName (without -pkg)
-            # then the -pkg packages are sorted first
-            # the character '!' comes before the character '#'
-            # so -pkg (which are not normal, and we say false < true) append '!' to the baseName
-            # otherwise, append '#'
-            #
-            # the simpler way to do this would be to just partition the packageNames list
-            # but I think this is prettier :)
-            toProduct = name:
-              if pkgs.lib.hasSuffix "-pkg" name
-              then pkgs.lib.removeSuffix "-pkg" name + "!"
-              else name + "#";
-          in
-            builtins.sort (a: b: toProduct a < toProduct b) packageNames;
+          partitionByPackageType = builtins.partition (name: pkgs.lib.hasSuffix "-pkg" name) packageNames;
+          normalPackages = partitionByPackageType.wrong;
+          pkgPackages = partitionByPackageType.right;
 
+          # we need to
+          # 1. update the pkgPackages
+          # 2. build the pkgPackages
+          # 3. update the normalPackages
           updateScript = pkgs.writeShellScriptBin "update" ''
             if [ -e 'result' ]; then
               echo "\`result\` file already exists and will be clobbered by nix-update bug" >&2
               echo "not performing nix-update in case a previous build's result was important" >&2
             else
-              ${pkgs.lib.concatMapStringsSep "\n      " (
+              ${pkgs.lib.concatMapStringsSep "\n    " (
                 name: ''"${pkgs.nix-update}/bin/nix-update" ${name} --flake --use-update-script''
               )
-              packageNamesByUpdateOrder}
-              rm result
+              pkgPackages}
+
+              ${pkgs.lib.optionalString (builtins.length pkgPackages > 0) ''
+              nix build --no-link ${pkgs.lib.concatMapStringsSep " " (name: ".#${name}") pkgPackages}
+            ''}
+
+              ${pkgs.lib.concatMapStringsSep "\n    " (
+                name: ''"${pkgs.nix-update}/bin/nix-update" ${name} --flake --use-update-script''
+              )
+              normalPackages}
+              rm -f result
             fi
           '';
         in
