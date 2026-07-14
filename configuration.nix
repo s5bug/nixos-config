@@ -188,6 +188,12 @@
       # Allow multiple doas in a time window
       persist = true;
     }
+    {
+      users = ["aly"];
+      noPass = true;
+      cmd = "${pkgs.systemd}/bin/systemctl";
+      args = ["start" "rebuild-and-shutdown.service"];
+    }
   ];
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -281,6 +287,34 @@
   # (/run/current-system/configuration.nix). This is useful in case you
   # accidentally delete configuration.nix.
   # system.copySystemConfiguration = true;
+
+  # Add a service that performs a rebuild and shuts down
+  systemd.services.rebuild-and-shutdown = {
+    description = "Perform a `nixos-rebuild boot` and shut down";
+    path = with pkgs; [nixos-rebuild];
+
+    unitConfig = {
+      SuccessAction = "poweroff";
+      FailureAction = "poweroff";
+    };
+
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+      StandardOutput = "journal+console";
+      StandardError = "journal+console";
+    };
+
+    script = ''
+      systemctl stop display-manager.service
+
+      if nixos-rebuild boot --flake path:/home/aly/Documents/nixos-config#hydrogen; then
+        exit 0
+      else
+        exit 1
+      fi
+    '';
+  };
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.

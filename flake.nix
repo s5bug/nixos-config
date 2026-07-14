@@ -22,6 +22,7 @@
     nix-hazkey = {
       url = "github:aster-void/nix-hazkey";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
     };
   };
   outputs = inputs @ {

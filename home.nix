@@ -26,6 +26,15 @@ in {
 
     gimp-with-plugins
     inkscape-with-extensions
+
+    (pkgs.makeDesktopItem {
+      name = "rebuild-and-shutdown-desktop";
+      desktopName = "Rebuild & Shut Down";
+      icon = "system-shutdown";
+      exec = "doas ${pkgs.systemd}/bin/systemctl start rebuild-and-shutdown.service";
+      terminal = false;
+      categories = ["System" "Utility"];
+    })
   ];
 
   programs.fish.enable = true;
