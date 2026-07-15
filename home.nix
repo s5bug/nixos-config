@@ -27,11 +27,28 @@ in {
     gimp-with-plugins
     inkscape-with-extensions
 
+    (pkgs.writeShellScriptBin "update-rebuild-gui" ''
+      CHOICE=$(${pkgs.zenity}/bin/zenity --list --radiolist --title="Update & Shut Down" --text="Action:" --column="Select" --column="Action" --hide-header \
+          TRUE "Rebuild and Shut Down" \
+          FALSE "Update, Rebuild, and Shut Down" \
+          --width=550 --height=200)
+
+      if [ "$?" != "0" ] || [ -z "$CHOICE" ]; then
+        exit 0
+      fi
+
+      if [ "$CHOICE" = "Rebuild and Shut Down" ]; then
+        doas ${pkgs.systemd}/bin/systemctl start rebuild-and-shutdown.service
+      else
+        doas ${pkgs.systemd}/bin/systemctl start update-rebuild-and-shutdown.service
+      fi
+    '')
+
     (pkgs.makeDesktopItem {
       name = "rebuild-and-shutdown-desktop";
       desktopName = "Rebuild & Shut Down";
       icon = "system-shutdown";
-      exec = "doas ${pkgs.systemd}/bin/systemctl start rebuild-and-shutdown.service";
+      exec = "update-rebuild-gui";
       terminal = false;
       categories = ["System" "Utility"];
     })

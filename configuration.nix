@@ -194,6 +194,12 @@
       cmd = "${pkgs.systemd}/bin/systemctl";
       args = ["start" "rebuild-and-shutdown.service"];
     }
+    {
+      users = ["aly"];
+      noPass = true;
+      cmd = "${pkgs.systemd}/bin/systemctl";
+      args = ["start" "update-rebuild-and-shutdown.service"];
+    }
   ];
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
@@ -309,6 +315,35 @@
       systemctl stop display-manager.service
 
       if nixos-rebuild boot --flake path:/home/aly/Documents/nixos-config#hydrogen; then
+        exit 0
+      else
+        exit 1
+      fi
+    '';
+  };
+  # Add a service that updates and then does the rebuild
+  systemd.services.update-rebuild-and-shutdown = {
+    description = "Perform an update, rebuild and shutdown";
+    path = with pkgs; [nixos-rebuild];
+
+    onSuccess = ["rebuild-and-shutdown.service"];
+
+    unitConfig = {
+      # if the update fails, don't attempt to rebuild
+      FailureAction = "poweroff";
+    };
+
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+      StandardOutput = "journal+console";
+      StandardError = "journal+console";
+    };
+
+    script = ''
+      systemctl stop display-manager.service
+
+      if /run/wrappers/bin/su aly -m -c 'cd /home/aly/Documents/nixos-config && nix flake update && nix run update'; then
         exit 0
       else
         exit 1
