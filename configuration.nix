@@ -309,22 +309,22 @@
       User = "root";
       StandardOutput = "journal+console";
       StandardError = "journal+console";
+
+      ExecStartPre = "+${pkgs.systemd}/bin/systemctl stop display-manager.service";
     };
 
     script = ''
-      systemctl stop display-manager.service
-
-      if nixos-rebuild boot --flake path:/home/aly/Documents/nixos-config#hydrogen; then
-        exit 0
-      else
-        exit 1
-      fi
+      nixos-rebuild boot --flake path:/home/aly/Documents/nixos-config#hydrogen
     '';
   };
   # Add a service that updates and then does the rebuild
   systemd.services.update-rebuild-and-shutdown = {
     description = "Perform an update, rebuild and shutdown";
-    path = with pkgs; [nixos-rebuild];
+    path = with pkgs; [nix git];
+
+    environment = {
+      NIX_PATH = "nixpkgs=${pkgs.path}";
+    };
 
     onSuccess = ["rebuild-and-shutdown.service"];
 
@@ -335,19 +335,17 @@
 
     serviceConfig = {
       Type = "oneshot";
-      User = "root";
+      User = "aly";
       StandardOutput = "journal+console";
       StandardError = "journal+console";
+
+      WorkingDirectory = "/home/aly/Documents/nixos-config";
+
+      ExecStartPre = "+${pkgs.systemd}/bin/systemctl stop display-manager.service";
     };
 
     script = ''
-      systemctl stop display-manager.service
-
-      if /run/wrappers/bin/su aly -m -c 'cd /home/aly/Documents/nixos-config && nix flake update && nix run update'; then
-        exit 0
-      else
-        exit 1
-      fi
+      nix flake update && nix run .#update
     '';
   };
 
