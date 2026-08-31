@@ -5,13 +5,13 @@
   nix-update-script,
 }:
 pkgs.wrangler.overrideAttrs (finalAttrs: prevAttrs: {
-  version = "4.127.0";
+  version = "4.127.1";
 
   src = fetchFromGitHub {
     owner = "cloudflare";
     repo = "workers-sdk";
     rev = "wrangler@${finalAttrs.version}";
-    hash = "sha256-SPn9exJ9JgqhccCao/Kxymz6/toPuAOcB1OAJpHmS9Y=";
+    hash = "sha256-WvJT1Qmdm9hL7L6aOyhy3p2weLEOFWL7mk3yN0b/dqM=";
   };
 
   pnpmDeps = fetchPnpmDeps {
@@ -24,15 +24,16 @@ pkgs.wrangler.overrideAttrs (finalAttrs: prevAttrs: {
       ;
     pnpm = pkgs.pnpm_10;
     fetcherVersion = 3;
-    hash = "sha256-30syMYkHbDI2p94xA/NFYvY8AcD/V9Mb7iZo6EoEekc=";
+    hash = "sha256-WtBSIhrnPFmU5uUlueGtak1uRfphd+VciqR/FrhOox4=";
   };
 
   # the original postBuild specifies packages manually, let's use pnpm's `...` to not have to
-  postBuild = ''
-    # the original package does this for some reason
-    mv packages/vitest-pool-workers packages/~vitest-pool-workers
+  buildPhase = ''
+    runHook preBuild
 
     NODE_ENV="production" pnpm --filter "wrangler..." run build
+
+    runHook postBuild
   '';
 
   # make workerd available as well as wrangler
