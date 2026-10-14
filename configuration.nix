@@ -103,8 +103,13 @@
     "en_DK.UTF-8/UTF-8"
     # YYYY-MM-DD HH:MM:SS
     "en_US_iso.UTF-8/UTF-8"
+    # CJK should render as Japanese
+    "ja_JP.UTF-8/UTF-8"
+    # with Simplified Chinese as a fallback
+    "zh_CN.UTF-8/UTF-8"
   ];
   i18n.extraLocaleSettings = {
+    LANGUAGE = "en_US:en:C:ja_JP:ja:zh_CN";
     LC_MEASUREMENT = "en_DK.UTF-8";
     LC_TIME = "en_US_iso.UTF-8";
   };

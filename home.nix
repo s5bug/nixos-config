@@ -8,10 +8,17 @@ in {
   imports = [inputs.nix-hazkey.homeModules.hazkey];
 
   home.packages = with pkgs; [
+    noto-fonts
+    jetbrains-mono
+
+    ipaexfont
+    sarasa-gothic
+    noto-fonts-cjk-sans
+    noto-fonts-cjk-serif
+
     (discord-canary.override {withMoonlight = true;})
     xivlauncher
     prismlauncher
-    ghostty
 
     jetbrains-toolbox
     # TODO figure out a way to declaratively set idea.filewatcher.executable.path
@@ -56,6 +63,30 @@ in {
 
   programs.fish.enable = true;
 
+  # Prefer English > Japanese > Chinese
+  fonts.fontconfig.enable = true;
+  fonts.fontconfig.defaultFonts = {
+    sansSerif = [
+      "Noto Sans"
+      "IPAexGothic"
+      "Noto Sans CJK JP"
+      "Noto Sans CJK SC"
+      "Noto Sans CJK TC"
+    ];
+    serif = [
+      "Noto Serif"
+      "IPAexMincho"
+      "Noto Serif CJK JP"
+      "Noto Serif CJK SC"
+      "Noto Serif CJK TC"
+    ];
+    monospace = [
+      "Sarasa Term J"
+      "Sarasa Term SC"
+      "Sarasa Term TC"
+    ];
+  };
+
   # Dark mode for legacy applications
   gtk = {
     enable = true;
@@ -74,6 +105,15 @@ in {
         email = "me@s5.pm";
       };
       init.defaultBranch = "main";
+    };
+  };
+
+  programs.ghostty = {
+    enable = true;
+    enableFishIntegration = true;
+    systemd.enable = true;
+    settings = {
+      font-family = "monospace";      
     };
   };
 
@@ -107,6 +147,7 @@ in {
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
+    fcitx5.waylandFrontend = true;
   };
 
   # Explicitly specify cursor
