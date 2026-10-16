@@ -113,7 +113,7 @@ in {
     enableFishIntegration = true;
     systemd.enable = true;
     settings = {
-      font-family = "monospace";      
+      font-family = "monospace";
     };
   };
 
