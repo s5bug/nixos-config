@@ -5,19 +5,26 @@
   nix-update-script,
 }:
 pkgs.biome.overrideAttrs (finalAttrs: prevAttrs: {
-  version = "2.5.15";
+  version = "2.6.2";
 
   src = fetchFromGitHub {
     owner = "biomejs";
     repo = "biome";
     rev = "@biomejs/biome@${finalAttrs.version}";
-    hash = "sha256-27I1d9cqC0oTMvfef4oYJViIx3QF+3b4WnZIx2gj5c4=";
+    hash = "sha256-L1XyFVPBGnQXmfNBnt2P2CMWlbYJrOeUIpiDspoml78=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-lC4IGhA6TXlmW0rbMvtnFE6R8SH8sI5uHWsS3t48ruQ=";
+    hash = "sha256-PywPJUVizSd0wNUVr7rxRUa2Hq9MN8Z1PdKLxmuvKTE=";
   };
+
+  # broken test replaces /build/ with <BIOME_DIR> and checks that it's still /build/
+  checkFlags =
+    (prevAttrs.checkFlags or [])
+    ++ [
+      "--skip=commands::migrate_stylelint::migrate_stylelintignore_and_ignore_files"
+    ];
 
   passthru =
     (prevAttrs.passthru or {})

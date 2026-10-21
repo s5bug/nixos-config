@@ -7,11 +7,11 @@
   jdk-26 = javaPackages.compiler.temurin-bin.jdk-26;
 in
   (pkgs.sbt.overrideAttrs (finalAttrs: prevAttrs: {
-    version = "2.0.10";
+    version = "2.0.11";
 
     src = fetchurl {
       url = "https://github.com/sbt/sbt/releases/download/v${finalAttrs.version}/sbt-${finalAttrs.version}.tgz";
-      hash = "sha256-eD/gwnhWTmf70U7KqazmuUM8+OzgrY9QrUNsskYiEFw=";
+      hash = "sha256-2ECaJE6Xw4OfJ8T0NfSUIRlsEmpFDTD0z1NSLTnjw3k=";
     };
 
     passthru =
