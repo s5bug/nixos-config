@@ -4,7 +4,7 @@
   fetchurl,
   nix-update-script,
 }: let
-  jdk-26 = javaPackages.compiler.temurin-bin.jdk-26;
+  jdk-27 = javaPackages.compiler.temurin-bin.jdk-27;
 in
   (pkgs.sbt.overrideAttrs (finalAttrs: prevAttrs: {
     version = "2.0.11";
@@ -24,5 +24,5 @@ in
         };
       };
   })).override {
-    jre = jdk-26;
+    jre = jdk-27;
   }

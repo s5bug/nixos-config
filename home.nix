@@ -3,7 +3,7 @@
   pkgs,
   ...
 }: let
-  jdk-26 = pkgs.javaPackages.compiler.temurin-bin.jdk-26;
+  jdk-27 = pkgs.javaPackages.compiler.temurin-bin.jdk-27;
 in {
   imports = [inputs.nix-hazkey.homeModules.hazkey];
 
@@ -26,7 +26,7 @@ in {
 
     pnpm
     nodejs_latest
-    jdk-26
+    jdk-27
     sbt
     rustup
     stdenv.cc
