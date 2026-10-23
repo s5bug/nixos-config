@@ -31,6 +31,9 @@ in {
     rustup
     stdenv.cc
 
+    dtmgr
+    just
+
     gimp-with-plugins
     inkscape-with-extensions
 
