@@ -6,11 +6,14 @@
   src = fetchFromGitHub {
     owner = "s5bug";
     repo = "dtmgr";
-    rev = "275c6acab3a5232fb982138133e7c4f9be431ad9";
-    hash = "sha256-LX6126nT466sweRfqhEPNOAxkArKKw6pwkTLSqWzjho=";
+    rev = "940bf5229d5dc698cd24432aa526ab62512a993b";
+    hash = "sha256-vyDclYqd7tcHqWxELyknpiX9zba+k+svAJCt1zxANtQ=";
   };
 in
   (callPackage "${src}/package.nix" {}).overrideAttrs {
+    version = "0-unstable-2026-10-23";
+    inherit src;
+
     passthru.updateScript = nix-update-script {
       extraArgs = ["--flake" "--version=branch"];
     };
