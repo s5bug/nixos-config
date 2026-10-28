@@ -6,8 +6,8 @@
   src = fetchFromGitHub {
     owner = "s5bug";
     repo = "dtmgr";
-    rev = "940bf5229d5dc698cd24432aa526ab62512a993b";
-    hash = "sha256-vyDclYqd7tcHqWxELyknpiX9zba+k+svAJCt1zxANtQ=";
+    rev = "7e7591ee1a76d1f9c3fcf06584bd0595737c7b63";
+    hash = "sha256-ToxGU+ei6OgiS/UmwTMxp1P8R0h5GqpmcuX+IJzTE88=";
   };
 in
   (callPackage "${src}/package.nix" {}).overrideAttrs {

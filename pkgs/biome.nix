@@ -5,18 +5,18 @@
   nix-update-script,
 }:
 pkgs.biome.overrideAttrs (finalAttrs: prevAttrs: {
-  version = "2.6.2";
+  version = "2.6.3";
 
   src = fetchFromGitHub {
     owner = "biomejs";
     repo = "biome";
     rev = "@biomejs/biome@${finalAttrs.version}";
-    hash = "sha256-L1XyFVPBGnQXmfNBnt2P2CMWlbYJrOeUIpiDspoml78=";
+    hash = "sha256-2FceNaMSmfLsG8K1mU/UPGOyG8MhNH5XVjsUcqafaUg=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-PywPJUVizSd0wNUVr7rxRUa2Hq9MN8Z1PdKLxmuvKTE=";
+    hash = "sha256-tOdx0nAeFGURqqjMYlRwbkdvxw0Yk6Io7mT+9v9G7tE=";
   };
 
   # broken test replaces /build/ with <BIOME_DIR> and checks that it's still /build/
