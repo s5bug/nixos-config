@@ -5,13 +5,13 @@
   nix-update-script,
 }:
 pkgs.wrangler.overrideAttrs (finalAttrs: prevAttrs: {
-  version = "4.154.0";
+  version = "4.156.0";
 
   src = fetchFromGitHub {
     owner = "cloudflare";
     repo = "workers-sdk";
     rev = "wrangler@${finalAttrs.version}";
-    hash = "sha256-2W3iafq1XIma/0d/mN3v7aWwFtzjc8ibyEXUJuFVAAM=";
+    hash = "sha256-3OtDhmqUQi2JZmhI9vYPrfUJyNRCBr09JHX4XDjD6p4=";
   };
 
   pnpmDeps = fetchPnpmDeps {
