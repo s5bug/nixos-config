@@ -6,12 +6,12 @@
   src = fetchFromGitHub {
     owner = "s5bug";
     repo = "dtmgr";
-    rev = "7e7591ee1a76d1f9c3fcf06584bd0595737c7b63";
-    hash = "sha256-ToxGU+ei6OgiS/UmwTMxp1P8R0h5GqpmcuX+IJzTE88=";
+    rev = "26263f7fdd7594539624dc3cbb434269616328b2";
+    hash = "sha256-mFuvQNYqY5Fqlp07RqX3QZ/e3Q4JHeaE4S8UImzig/c=";
   };
 in
   (callPackage "${src}/package.nix" {}).overrideAttrs {
-    version = "0-unstable-2026-10-23";
+    version = "0-unstable-2026-11-04";
     inherit src;
 
     passthru.updateScript = nix-update-script {
