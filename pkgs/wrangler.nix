@@ -5,13 +5,13 @@
   nix-update-script,
 }:
 pkgs.wrangler.overrideAttrs (finalAttrs: prevAttrs: {
-  version = "4.158.0";
+  version = "4.160.1";
 
   src = fetchFromGitHub {
     owner = "cloudflare";
     repo = "workers-sdk";
     rev = "wrangler@${finalAttrs.version}";
-    hash = "sha256-jsKmCNBUb+h2NC27ihkykW1SNIhBhXDQOhAH568k0AA=";
+    hash = "sha256-0RBkElvfJwfdsijuiov9cZ1PojRg0zmWl59zGCc0BpM=";
   };
 
   pnpmDeps = fetchPnpmDeps {
@@ -24,7 +24,7 @@ pkgs.wrangler.overrideAttrs (finalAttrs: prevAttrs: {
       ;
     pnpm = pkgs.pnpm_10;
     fetcherVersion = 3;
-    hash = "sha256-fnFpm7hCnqgCkNLD2MuBnWTSJ+SvIu0w80Bbt/9mG5Q=";
+    hash = "sha256-ldyaMpp9kbFFTBIRfSp154pDwozV9yOj2rATHOarycA=";
   };
 
   # the original postBuild specifies packages manually, let's use pnpm's `...` to not have to
