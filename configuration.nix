@@ -252,7 +252,9 @@
     vulkan-tools
     clinfo
 
-    cosmic-ext-applet-sysinfo
+    (cosmic-ext-applet-sysinfo.overrideAttrs (prevAttrs: {
+      buildInputs = (prevAttrs.buildInputs or []) ++ [aws-lc];
+    }))
     cosmic-ext-applet-clipboard-manager
     cosmic-monitor
 
