@@ -4,6 +4,7 @@
   rustPlatform,
   nix-update-script,
   cosmic-ext-applet-clipboard-manager-pkg,
+  sqlite,
 }: let
   cosmic-ext-applet-clipboard = callPackage cosmic-ext-applet-clipboard-manager-pkg {};
 in (cosmic-ext-applet-clipboard.overrideAttrs (finalAttrs: prevAttrs: {
@@ -20,6 +21,12 @@ in (cosmic-ext-applet-clipboard.overrideAttrs (finalAttrs: prevAttrs: {
     inherit (finalAttrs) pname version src;
     hash = "sha256-ABo4fAtFCaIyNukOUZqHpBhR0fANkb/h7lz755LyRpA=";
   };
+
+  buildInputs =
+    (prevAttrs.buildInputs or [])
+    ++ [
+      sqlite
+    ];
 
   passthru =
     (prevAttrs.passthru or {})
