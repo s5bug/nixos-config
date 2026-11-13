@@ -45,15 +45,37 @@
           packageFiles = builtins.readDir ./pkgs;
           packageNames = map (pkgs.lib.removeSuffix ".nix") (builtins.attrNames packageFiles);
 
+          # need to force read-write-mode for -pkg builds to work
+          nix-update = pkgs.nix-update.overrideAttrs (old: {
+            postPatch =
+              (old.postPatch or "")
+              + ''
+                substituteInPlace nix_update/*.py \
+                  --replace-quiet '"nix-instantiate", "--eval"' '"nix-instantiate", "--eval", "--read-write-mode"'
+              '';
+          });
+
           # every package name ends up being `name = callPackage (...) {}`
           # we can just make the packages a recursive scope because nix will handle the laziness for us
-          callPackage = pkgs.newScope resolvedPackages;
+          callPackage = pkgs.newScope (
+              resolvedPackages
+              // {
+                nix-update = nix-update;
+                nix-update-script = pkgs.nix-update-script.override {
+                  nix-update = nix-update;
+                };
+              }
+            );
           resolvedPackages = pkgs.lib.genAttrs packageNames (
             name:
               callPackage (./pkgs + "/${name}.nix") {}
           );
 
-          partitionByPackageType = builtins.partition (name: pkgs.lib.hasSuffix "-pkg" name) packageNames;
+          updatablePackageNames = builtins.filter (
+            name: resolvedPackages.${name} ? updateScript
+          ) packageNames;
+
+          partitionByPackageType = builtins.partition (name: pkgs.lib.hasSuffix "-pkg" name) updatablePackageNames;
           normalPackages = partitionByPackageType.wrong;
           pkgPackages = partitionByPackageType.right;
 
@@ -61,24 +83,21 @@
           # 1. update the pkgPackages
           # 2. build the pkgPackages
           # 3. update the normalPackages
+          runUpdateScript = name:
+              "UPDATE_NIX_ATTR_PATH=${pkgs.lib.escapeShellArg name} ${pkgs.lib.escapeShellArgs resolvedPackages.${name}.updateScript}";
+
           updateScript = pkgs.writeShellScriptBin "update" ''
             if [ -e 'result' ]; then
               echo "\`result\` file already exists and will be clobbered by nix-update bug" >&2
               echo "not performing nix-update in case a previous build's result was important" >&2
             else
-              ${pkgs.lib.concatMapStringsSep "\n    " (
-                name: ''"${pkgs.nix-update}/bin/nix-update" ${name} --flake --use-update-script''
-              )
-              pkgPackages}
+              ${pkgs.lib.concatMapStringsSep "\n    " runUpdateScript pkgPackages}
 
               ${pkgs.lib.optionalString (builtins.length pkgPackages > 0) ''
               nix build --no-link ${pkgs.lib.concatMapStringsSep " " (name: ".#${name}") pkgPackages}
             ''}
 
-              ${pkgs.lib.concatMapStringsSep "\n    " (
-                name: ''"${pkgs.nix-update}/bin/nix-update" ${name} --flake --use-update-script''
-              )
-              normalPackages}
+              ${pkgs.lib.concatMapStringsSep "\n    " runUpdateScript normalPackages}
               rm -f result
             fi
           '';
