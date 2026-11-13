@@ -5,9 +5,9 @@
 }:
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "cosmic-ext-applet-clipboard-manager-pkg";
-  version = "0-unstable-2026-03-04";
+  version = "0-unstable-2026-11-12";
   # Hack due to nix-update using Regex
-  rev = "71f8f21a50192425577f92f97eb5212a85dd0588";
+  rev = "d56008996ae1f7383cbef498007ff78989122af4";
 
   src = fetchurl {
     url = "https://github.com/kritdass/nixpkgs/raw/${finalAttrs.rev}/pkgs/by-name/co/cosmic-ext-applet-clipboard-manager/package.nix";

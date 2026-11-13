@@ -45,35 +45,19 @@
           packageFiles = builtins.readDir ./pkgs;
           packageNames = map (pkgs.lib.removeSuffix ".nix") (builtins.attrNames packageFiles);
 
-          # need to force read-write-mode for -pkg builds to work
-          nix-update = pkgs.nix-update.overrideAttrs (old: {
-            postPatch =
-              (old.postPatch or "")
-              + ''
-                substituteInPlace nix_update/*.py \
-                  --replace-quiet '"nix-instantiate", "--eval"' '"nix-instantiate", "--eval", "--read-write-mode"'
-              '';
-          });
-
           # every package name ends up being `name = callPackage (...) {}`
           # we can just make the packages a recursive scope because nix will handle the laziness for us
-          callPackage = pkgs.newScope (
-              resolvedPackages
-              // {
-                nix-update = nix-update;
-                nix-update-script = pkgs.nix-update-script.override {
-                  nix-update = nix-update;
-                };
-              }
-            );
+          callPackage = pkgs.newScope resolvedPackages;
           resolvedPackages = pkgs.lib.genAttrs packageNames (
             name:
               callPackage (./pkgs + "/${name}.nix") {}
           );
 
-          updatablePackageNames = builtins.filter (
-            name: resolvedPackages.${name} ? updateScript
-          ) packageNames;
+          updatablePackageNames =
+            builtins.filter (
+              name: resolvedPackages.${name} ? updateScript
+            )
+            packageNames;
 
           partitionByPackageType = builtins.partition (name: pkgs.lib.hasSuffix "-pkg" name) updatablePackageNames;
           normalPackages = partitionByPackageType.wrong;
@@ -83,8 +67,7 @@
           # 1. update the pkgPackages
           # 2. build the pkgPackages
           # 3. update the normalPackages
-          runUpdateScript = name:
-              "UPDATE_NIX_ATTR_PATH=${pkgs.lib.escapeShellArg name} ${pkgs.lib.escapeShellArgs resolvedPackages.${name}.updateScript}";
+          runUpdateScript = name: "UPDATE_NIX_ATTR_PATH=${pkgs.lib.escapeShellArg name} ${pkgs.lib.escapeShellArgs resolvedPackages.${name}.updateScript}";
 
           updateScript = pkgs.writeShellScriptBin "update" ''
             if [ -e 'result' ]; then

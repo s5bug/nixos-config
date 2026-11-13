@@ -22,11 +22,11 @@ in (cosmic-ext-applet-clipboard.overrideAttrs (finalAttrs: prevAttrs: {
     hash = "sha256-ABo4fAtFCaIyNukOUZqHpBhR0fANkb/h7lz755LyRpA=";
   };
 
-  buildInputs =
-    (prevAttrs.buildInputs or [])
-    ++ [
-      sqlite
-    ];
+  buildInputs = let
+    old = prevAttrs.buildInputs or [];
+  in
+    assert !(builtins.elem sqlite old);
+      old ++ [sqlite];
 
   passthru =
     (prevAttrs.passthru or {})
